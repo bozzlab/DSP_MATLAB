@@ -1,4 +1,4 @@
-function [Y,f]= process_rec(filepath,flag_aw) 
+function [Y,f]= Arrange_Audio(filepath,flag_aw) 
           
 if nargin < 2
     flag_aw=0;
