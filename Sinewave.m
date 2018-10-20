@@ -1,10 +1,10 @@
 A=2; %Amplitude
-stoptime=1; 
+stoptime=1; %Sample range
 T=1/44000; %Period
 t=(0:T:stoptime-T); %Time
-theta=0; %phase
+theta=0; %Phase
 Fc=440; %Frequency 
-Fs=1/T; %Sampling 
+Fs=1/T; %Freq sampling 
 x = A*cos((2*pi*Fc*t)+theta); %Sinewave Equation
 %Plot
 plot(t,x,'r'); 
