@@ -1,4 +1,4 @@
-[Y1, f]=process_rec('filepath');
+[Y1, f]=Arrange_Audio('filepath');
 
 X1=abs(Y1);
 X_matrix=[X1....Xn];
