@@ -1,34 +1,55 @@
-[x,fs] = audioread('song.wav');
-x = x(1:10*fs,1);x = x(:);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%              Short-Time Fourier Transform            %
+%               with MATLAB Implementation             %
+%                                                      %
+% Author: Ph.D. Eng. Hristo Zhivomirov        12/21/13 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%M = 16;% Size of analysis windows
-M = 2^12;
+function [STFT, f, t] = stft(x, win, hop, nfft, fs)
 
-x = [zeros(M,1);x;zeros(M,1)]; % need to add zeros to allow the slidding window
+% function: [STFT, f, t] = stft(x, win, hop, nfft, fs)
+%
+% Input:
+% x - signal in the time domain
+% win - analysis window function
+% hop - hop size
+% nfft - number of FFT points
+% fs - sampling frequency, Hz
+%
+% Output:
+% STFT - STFT-matrix (only unique points, time 
+%        across columns, frequency across rows)
+% f - frequency vector, Hz
+% t - time vector, s
 
-%w = hann(M); % Analysis window
-w = ones(1,M);
+% representation of the signal as column-vector
+x = x(:);
 
-I = M; % overlap indice
+% determination of the signal length 
+xlen = length(x);
 
-L = M/2+1;
+% determination of the window length
+wlen = length(win);
 
-N = length(x); % signal length
+% stft matrix size estimation and preallocation
+NUP = ceil((1+nfft)/2);     % calculate the number of unique fft points
+L = 1+fix((xlen-wlen)/hop); % calculate the number of signal frames
+STFT = zeros(NUP, L);       % preallocate the stft matrix
 
-Nt = fix( (N-M)/I ); %Number of DFT
-a = [];
-for r=1:Nt; % loop over the number of fragments
-star = (r-1)*I +1; % d�but de trame
-endd = star + M -1; % fin de trame
-tx = x(star:endd).*w; % calcul de la trame 
-X = fft(tx,M);% tfd � l'instant b
-a(r)=X(r)
+% STFT (via time-localized FFT)
+for l = 0:L-1
+    % windowing
+    xw = x(1+l*hop : wlen+l*hop).*win;
+    
+    % FFT
+    X = fft(xw, nfft);
+    
+    % update of the stft matrix
+    STFT(:, 1+l) = X(1:NUP);
 end
 
-freq = (0:M/2)/M*fs;
-b = [0:Nt-1]*I/fs+(M/2)/fs;% average time of each fragment
+% calculation of the time and frequency vectors
+t = (wlen/2:hop:wlen/2+(L-1)*hop)/fs;
+f = (0:NUP-1)*fs/nfft;
 
-hold on;
-figure; 
-imagesc(b,freq,db(abs(a(1:L,:))))% spectrogram display
-axis xy
+end
